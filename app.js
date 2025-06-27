@@ -2,6 +2,10 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 
+const fs = require("fs");
+const path = require("path");
+const usersFilePath = path.join(__dirname, "users.json");
+
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -35,6 +39,7 @@ app.get("/search", (req, res) => {
         `);
 });
 
+// datos de formularios
 app.post("/form", (req, res) => {
     const name = req.body.nombre || "Anó nimo";
     const email = req.body.email || "No proporcionade";
@@ -48,6 +53,7 @@ app.post("/form", (req, res) => {
     });
 });
 
+// datos en JSON
 app.post("/api/data", (req, res) => {
     const data = req.body;
 
@@ -61,6 +67,38 @@ app.post("/api/data", (req, res) => {
     });
 });
 
+app.get("/users", (req, res) => {
+    fs.readFile(usersFilePath, "utf-8", (error, data) => {
+        if (error) {
+            return res
+                .status(500)
+                .json({ error: "Error con conexión de datos." });
+        }
+        const users = JSON.parse(data);
+        res.json(users);
+    });
+});
+
+app.post("/users", (req, res) => {
+    const newUser = req.body;
+    fs.readFile(usersFilePath, "utf-8", (error, data) => {
+        if (error) {
+            return res
+                .status(500)
+                .json({ error: "Error con conexión de datos." });
+        }
+        const users = JSON.parse(data);
+        users.push(newUser);
+        fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), (error) => {
+            if (error) {
+                return res
+                    .status(500)
+                    .json({ error: "Error al guardar el usuario." });
+            }
+            res.status(201).json(newUser);
+        });
+    });
+});
 
 app.listen(PORT, () => {
     console.log(`App corriendose en el puerto ${PORT}!`);
