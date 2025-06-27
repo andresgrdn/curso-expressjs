@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 
 const LoggerMiddleware = require("./middlewares/logger");
+const errorHandler = require("./middlewares/errorHandler");
 const { validateUser, validateUniqueUser } = require("./utils/validation");
 
 const bodyParser = require("body-parser");
@@ -162,6 +163,12 @@ app.delete("/users/:id", (req, res) => {
         });
     });
 });
+
+app.get("/error", (req, res, next) => {
+    next(new Error("Error inocente"));
+});
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`App corriendose en el puerto ${PORT}!`);
