@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 const LoggerMiddleware = require("./middlewares/logger");
 const errorHandler = require("./middlewares/errorHandler");
 const { validateUser, validateUniqueUser } = require("./utils/validation");
+const authenticateToken = require("./middlewares/auth");
 
 const bodyParser = require("body-parser");
 
@@ -181,8 +182,14 @@ app.get("/db-users", async (req, res, next) => {
     }
 });
 
+app.get("/protected-route", authenticateToken, (req, res) => {
+    res.send("Ruta privada perra, eres una perra vip");
+});
+
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-    console.log(`App corriendose en el puerto ${PORT}!`);
+    console.log(
+        `[${new Date().toISOString()}] [start] Corriéndose en el puerto ${PORT}`
+    );
 });
