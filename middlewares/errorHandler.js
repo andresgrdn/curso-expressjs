@@ -3,7 +3,7 @@ const errorHandler = (err, req, res, next) => {
     const message = err.message || "Ocurrió un error inesperado.";
 
     console.error(
-        `[ERROR] ${new Date().toISOString()} - ${statusCode} - ${message}`
+        `[${new Date().toISOString()}] [error] ${statusCode} - ${message}`
     );
 
     if (err.stack) {
