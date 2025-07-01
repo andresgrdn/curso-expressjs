@@ -7,6 +7,7 @@ const LoggerMiddleware = require("./middlewares/logger");
 const errorHandler = require("./middlewares/errorHandler");
 const { validateUser, validateUniqueUser } = require("./utils/validation");
 const authenticateToken = require("./middlewares/auth");
+const bcrypt = require("bcryptjs");
 
 const bodyParser = require("body-parser");
 
@@ -184,6 +185,17 @@ app.get("/db-users", async (req, res, next) => {
 
 app.get("/protected-route", authenticateToken, (req, res) => {
     res.send("Ruta privada perra, eres una perra vip");
+});
+
+app.post("/register", async (req, res) => {
+    const { email, password, name } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await prisma.user.create({
+        data: { email, password: hashedPassword, name, role: "USER" },
+    });
+
+    res.status(201).json({ message: "User registered successfully" });
 });
 
 app.use(errorHandler);
